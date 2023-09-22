@@ -137,6 +137,14 @@ class ForestSample():
         new_positions.update(self.newPoints(i))
 
     return new_positions
+
+  def possibleMonkeyMoves(self,player_pos):
+    return {
+        0: max(0, player_pos[0]-1),
+        1: min(self.board_size - 1, player_pos[0]+1),
+        2: max(player_pos[1]-1, 0),
+        3: min(player_pos[1]+1, self.board_size - 1)
+    }
   
   def bfs(self):
     currentBoard = self.board
