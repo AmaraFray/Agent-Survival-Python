@@ -126,6 +126,17 @@ class ForestSample():
     self.moveMonkey(direction)
     self.spreadFire()
     self.displayBoard()
+
+  def nextFire(self, curr_positions, steps=1):
+    new_positions = set()
+    new_positions.update(curr_positions)
+
+    for i in range(steps):
+      curr_positions = new_positions.copy()
+      for i in curr_positions:  
+        new_positions.update(self.newPoints(i))
+
+    return new_positions
   
   def bfs(self):
     currentBoard = self.board
