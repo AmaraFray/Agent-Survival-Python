@@ -80,6 +80,8 @@ class ForestSample():
         print(j, end ='  ')
       print('\n')
   
+  def isMonkeyAlive(self):
+    return tuple(self.player_pos) not in self.fire_positions
   # ==== FIRE MATH ===== #
   
   def newPoints(self, position):
@@ -139,19 +141,36 @@ class ForestSample():
     return new_positions
 
   def possibleMonkeyMoves(self,player_pos):
-    return {
-        0: max(0, player_pos[0]-1),
-        1: min(self.board_size - 1, player_pos[0]+1),
-        2: max(player_pos[1]-1, 0),
-        3: min(player_pos[1]+1, self.board_size - 1)
-    }
+    return [(0, max(0, player_pos[0]-1)),
+        (1, min(self.board_size - 1, player_pos[0]+1)),
+        (2, max(player_pos[1]-1, 0)),
+        (3,min(player_pos[1]+1, self.board_size - 1))]
   
   def bfs(self):
-    currentBoard = self.board
-    currentFirePos = self.fire_pos
-    playerPos = self.player_pos
+    monkey_pos = tuple(self.player_pos)
+    
+    queue = [monkey_pos]
+    visited = {monkey_pos: None}
+    positive = []
+    steps = 0
 
-    ## ADD YOUR CODE HERE ##
-
-    direction = 0
-    return direction # a number from 0 to 3
+    while queue:
+        for _ in range(len(queue)):
+            pos = queue.pop(0)
+            if pos in self.fire_positions:
+                continue
+            if pos[0] == 0 or pos[0] == self.board_size - 1 or pos[1] == 0 or pos[1] == self.board_size - 1:
+                positive.append(pos)
+            for move in self.possibleMonkeyMoves(pos):
+                new_pos = (move[1], move[0])
+                if new_pos not in visited:
+                    visited[new_pos] = pos
+                    queue.append(new_pos)
+        steps += 1
+    
+    if not positive:
+        return -1
+    max_pos = max(positive, key=lambda pos: abs(pos[0] - monkey_pos[0]) + abs(pos[1] - monkey_pos[1]))
+    while visited[max_pos] != monkey_pos:
+        max_pos = visited[max_pos]
+    return self.possibleMonkeyMoves(monkey_pos).index((max_pos[1], max_pos[0]))
