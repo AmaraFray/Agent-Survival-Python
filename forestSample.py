@@ -71,6 +71,7 @@ class ForestSample():
     self.createBoard()
     self.spawnPlayer()
     self.setFireToObject()
+    self.monkeyDeathAnimation()
   
   def displayBoard(self):
     self.renderBoard()
@@ -106,6 +107,9 @@ class ForestSample():
     self.fire_positions = new_positions
     self.setFireToObject()
 
+  def monkeyDeathAnimation(self):
+    if (self.isMonkeyAlive() != True):
+      self.board[self.player_pos[0]][self.player_pos[1]] = '🪦 ' 
   # ==== MONKEY MATH ===== #
 
   def moveMonkey(self, direction):
@@ -141,36 +145,49 @@ class ForestSample():
     return new_positions
 
   def possibleMonkeyMoves(self,player_pos):
-    return [(0, max(0, player_pos[0]-1)),
-        (1, min(self.board_size - 1, player_pos[0]+1)),
-        (2, max(player_pos[1]-1, 0)),
-        (3,min(player_pos[1]+1, self.board_size - 1))]
+    return [(max(0, player_pos[0]-1), player_pos[1]),
+        (min(self.board_size - 1, player_pos[0]+1), player_pos[1]),
+        (player_pos[0], max(player_pos[1]-1, 0)),
+        (player_pos[0],min(player_pos[1]+1, self.board_size - 1))]
   
   def bfs(self):
-    monkey_pos = tuple(self.player_pos)
     
-    queue = [monkey_pos]
-    visited = {monkey_pos: None}
-    positive = []
+    queue = {}
+    results = {}
     steps = 0
-
-    while queue:
-        for _ in range(len(queue)):
-            pos = queue.pop(0)
-            if pos in self.fire_positions:
-                continue
-            if pos[0] == 0 or pos[0] == self.board_size - 1 or pos[1] == 0 or pos[1] == self.board_size - 1:
-                positive.append(pos)
-            for move in self.possibleMonkeyMoves(pos):
-                new_pos = (move[1], move[0])
-                if new_pos not in visited:
-                    visited[new_pos] = pos
-                    queue.append(new_pos)
-        steps += 1
     
-    if not positive:
-        return -1
-    max_pos = max(positive, key=lambda pos: abs(pos[0] - monkey_pos[0]) + abs(pos[1] - monkey_pos[1]))
-    while visited[max_pos] != monkey_pos:
-        max_pos = visited[max_pos]
-    return self.possibleMonkeyMoves(monkey_pos).index((max_pos[1], max_pos[0]))
+    monkey_pos = tuple(self.player_pos)
+    currFirePos = self.nextFire(self.fire_positions)
+    for n, i in enumerate(self.possibleMonkeyMoves(monkey_pos)):
+      queue[n] = [i]
+
+    while True:
+      steps += 1
+      popper = 4
+      
+      for i in range(4):
+        if (queue[i] == []):
+          popper -= 1
+          continue
+        nextAvailable = []
+
+        for m in range(len(queue[i])):
+          curr_ = queue[i].pop(0)
+          if curr_ not in currFirePos:
+            nextAvailable.extend(self.possibleMonkeyMoves(curr_))
+        queue[i] = list(set(nextAvailable) - currFirePos)
+
+        
+
+        if (nextAvailable == []):
+          results[i] = steps
+
+      if (popper == 0):
+        break
+      
+      currFirePos = self.nextFire(currFirePos)
+
+    max_value = max(results.values())
+    return [k for k, v in results.items() if v == max_value][0]
+
+
