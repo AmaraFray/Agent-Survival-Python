@@ -41,13 +41,13 @@ class ForestSample():
 
 
   '''
-  def __init__(self, size=10, initial_fire_pos = (2,3), initial_monkey_pos = (3,2)):
+  def __init__(self, size=10, initial_fire_pos = {(2,3)}, initial_monkey_pos = (3,2)):
     self.board = [['🌲' for i in range(size)] for i in range(size)]
     self.board_size = size
 
     self.player_pos = list(initial_monkey_pos)
 
-    self.fire_positions = {initial_fire_pos}
+    self.fire_positions = initial_fire_pos
     
     self.player_token = '🐒'
     self.fire_token = '🔥'
