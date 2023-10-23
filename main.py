@@ -1,6 +1,6 @@
 from forestSample import ForestSample
 
-f = ForestSample(size=25, initial_fire_pos={(0,0), (24,0)}, initial_monkey_pos=(24,24))
+f = ForestSample(size=25, initial_fire_pos={(0,0), (10,9)}, initial_monkey_pos=(24,24))
 
 
 while f.isMonkeyAlive():
