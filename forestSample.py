@@ -131,7 +131,15 @@ class ForestSample():
   def renderFrame(self, direction):
     self.moveMonkey(direction)
     self.spreadFire()
-    self.displayBoard()
+    
+    self.renderBoard()
+    str_ = "\n"
+    for i in self.board:
+      for j in i:
+        str_ += j + "  "
+      str_ += "\n\n"
+    
+    return str_
 
   def nextFire(self, curr_positions, steps=1):
     new_positions = set()
@@ -189,5 +197,61 @@ class ForestSample():
 
     max_value = max(results.values())
     return [k for k, v in results.items() if v == max_value][0]
+  
+  def dfs(self):
+    stack = []
+    monkey_pos = tuple(self.player_pos) + (0,)
+    currFirePos = self.nextFire(self.fire_positions)
 
+    fires_ = {}
+    i = 0
+    while True:
+      i += 1
+      fires_[i] = self.nextFire(self.fire_positions, i)
+      if (len(fires_[i]) >= self.board_size ** 2):
+        break
+
+
+    idr_ = dict()
+    realDir = dict()
+    x = 0
+    for i in self.possibleMonkeyMoves(monkey_pos):
+      newElement = i + (0,)
+      if newElement not in stack:
+        stack.append(newElement)
+      idr_[i] = 0
+      realDir[i] = x
+      x+= 1
+    
+    # print(idr_.keys())
+    curr_dir = 0
+    while True:
+      if (len(stack) == 0):
+        break
+      
+      x,y,no = stack.pop()
+
+      if no == 0:
+        curr_dir = (x,y)
+
+      nextMoves = self.possibleMonkeyMoves((x,y))
+      l = no+1
+      for move in nextMoves:
+        if move in fires_[l] or l >= self.board_size:
+          continue
+
+        idr_[curr_dir] = no+1
+        newElement = (x,y,no+1)
+        if newElement not in stack:
+          stack.append(newElement)
+        
+      
+    maxVal = 0
+    maxDir = list(idr_.keys())[0]
+    for i in idr_:
+      if idr_[i] > maxVal:
+        maxDir = i
+        maxVal = idr_[i]
+
+    return realDir[maxDir]
 
